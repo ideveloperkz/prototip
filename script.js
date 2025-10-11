@@ -1,27 +1,46 @@
 const slides = document.querySelectorAll('.slide');
 let current = 0;
+let isTransitioning = false;
 
 function updateSlides() {
   slides.forEach((slide, i) => {
-    slide.classList.remove('active', 'left', 'right');
+    slide.classList.remove('active', 'left', 'right', 'transitioning');
     if (i === current) slide.classList.add('active');
     else if (i === current - 1) slide.classList.add('left');
     else if (i === current + 1) slide.classList.add('right');
   });
 }
 
+function changeSlide(direction) {
+  if (isTransitioning) return;
+
+  const next =
+    direction === 'next'
+      ? current + 1
+      : current - 1;
+
+  if (next < 0 || next >= slides.length) return;
+
+  isTransitioning = true;
+
+  slides[current].classList.add('transitioning');
+  slides[next].classList.add('transitioning');
+
+  current = next;
+  updateSlides();
+
+  // После завершения анимации снова разрешаем переключение
+  setTimeout(() => {
+    isTransitioning = false;
+  }, 600);
+}
+
 function nextSlide() {
-  if (current < slides.length - 1) {
-    current++;
-    updateSlides();
-  }
+  changeSlide('next');
 }
 
 function prevSlide() {
-  if (current > 0) {
-    current--;
-    updateSlides();
-  }
+  changeSlide('prev');
 }
 
 // Поддержка свайпов
